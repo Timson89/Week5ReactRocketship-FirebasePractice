@@ -1,6 +1,7 @@
 import './App.css';
 import React from 'react';
 import { auth, db } from './firebase/init.jsx';
+import { collection, addDoc } from 'firebase/firestore';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
 
 
@@ -10,6 +11,16 @@ function App() {
   const [user, setUser] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
 
+
+  function createPost(){
+
+    const post = {
+
+      title: "Title",
+      description: "Description"
+    }
+    addDoc(collection(db, "posts"), post)
+  }
 
   // Stay logged in even after browser refreshes //
 
@@ -82,6 +93,7 @@ function App() {
       <button onClick={ register }>Register</button>
       <button onClick={ login }>Login</button>
       <button onClick={ logout }>logout</button>
+      <button onClick={ createPost }>Create Post</button>
       { loading ? 'Loading...' : user.email }
     </div>
   );
