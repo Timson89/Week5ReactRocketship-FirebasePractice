@@ -1,7 +1,7 @@
 import './App.css';
 import React from 'react';
 import { auth, db } from './firebase/init.jsx';
-import { collection, addDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, getDoc, doc, query, where } from 'firebase/firestore';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
 
 
@@ -17,9 +17,39 @@ function App() {
     const post = {
 
       title: "Land A $100k Job!",
-      description: "Finish Frontend Simplified."
+      description: "Finish Firebase Firestore lesson.",
+      uid: user.uid
     }
     addDoc(collection(db, "posts"), post)
+  }
+
+  async function getAllPosts(){
+
+    const { docs } = await getDocs(collection(db, "posts"));
+    const posts = docs.map(elem => ({ ...elem.data(), id: elem.id }));
+
+    console.log(posts);
+  }
+
+  async function getPostByID(){
+
+    const hardCodedId = 'GRtbtWxuov7bpnhfVqNT';
+    const postRef = doc(db, "posts", hardCodedId)
+    const postSnap = await getDoc(postRef);
+    const post = postSnap.data();
+
+    console.log(post);
+  }
+
+  async function getPostByUID(){
+    
+    const postCollectionRef = await query(
+
+      collection(db, "posts"),
+      where('uid', '==', user.uid)
+    )
+    const { docs } = await getDocs(postCollectionRef);
+    console.log(docs.map(docs => docs.data()));
   }
 
   // Stay logged in even after browser refreshes //
@@ -90,11 +120,17 @@ function App() {
   return (
 
     <div className="App">
+      
       <button onClick={ register }>Register</button>
       <button onClick={ login }>Login</button>
       <button onClick={ logout }>logout</button>
       <button onClick={ createPost }>Create Post</button>
+      <button onClick={ getAllPosts }>Get All Posts</button>
+      <button onClick={ getPostByID }>Get Post By ID</button>
+      <button onClick={ getPostByUID }>Get Post By UID</button>
+
       { loading ? 'Loading...' : user.email }
+
     </div>
   );
 }
