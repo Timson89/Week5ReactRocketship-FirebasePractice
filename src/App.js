@@ -1,7 +1,7 @@
 import './App.css';
 import React from 'react';
 import { auth, db } from './firebase/init.jsx';
-import { collection, addDoc, getDocs, getDoc, doc, query, where, updateDoc } from 'firebase/firestore';
+import { collection, addDoc, getDocs, getDoc, doc, query, where, updateDoc, deleteDoc } from 'firebase/firestore';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
 
 
@@ -10,6 +10,7 @@ function App() {
 
   const [user, setUser] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
+
 
   // Update existing post. //
 
@@ -21,15 +22,25 @@ function App() {
     console.log(post)
 
     // How change specific A specific field. //
-    
+
     const newPost = {
 
       ...post,
       title: "Land A $600k Job!",
     } 
-    console.log(newPost)
+    // console.log(newPost)
     updateDoc(postRef, newPost);
   }
+
+
+  function deletePost(){
+
+    const hardCodedId = "0IxRxLCuFHWbUP9ghh1nuZzDsB32";
+    const postRef = doc(db, "posts", hardCodedId)
+    console.log(hardCodedId)
+    deleteDoc(postRef)
+  }
+
 
   // Created A new post. //
 
@@ -44,6 +55,7 @@ function App() {
     addDoc(collection(db, "posts"), post)
   }
 
+
   // Fetch and log all posts. //
 
   async function getAllPosts(){
@@ -54,6 +66,7 @@ function App() {
     console.log(posts);
   }
 
+
     // Fetch post by ID //
 
   async function getPostByID(id){
@@ -63,9 +76,8 @@ function App() {
     const postRef = doc(db, "posts", id)
     const postSnap = await getDoc(postRef);
     return postSnap.data();
-
-    // console.log(post);
   }
+
 
   // Fetch post by UID //
 
@@ -96,10 +108,10 @@ function App() {
     })
   }, []);
 
+
   // Register A new user. //
 
   function register(){
-
 
     // Registered. //
 
@@ -120,7 +132,6 @@ function App() {
 
   function login(){
 
-
     // Logged In. //
 
     signInWithEmailAndPassword(auth, 'email@email.com', 'test123')
@@ -137,6 +148,7 @@ function App() {
       console.log(error.message);
     })
   }
+  
 
   function logout(){
 
@@ -155,6 +167,7 @@ function App() {
       <button onClick={ logout       }>logout</button>
       <button onClick={ createPost   }>Create Post</button>
       <button onClick={ updatePost   }>Update Post</button>
+      <button onClick={ deletePost   }>Delete Post</button>
       <button onClick={ getAllPosts  }>Get All Posts</button>
       <button onClick={ getPostByID  }>Get Post By ID</button>
       <button onClick={ getPostByUID }>Get Post By UID</button>
