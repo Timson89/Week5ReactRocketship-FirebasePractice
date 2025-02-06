@@ -1,7 +1,7 @@
 import './App.css';
 import React from 'react';
 import { auth, db } from './firebase/init.jsx';
-import { collection, addDoc, getDocs, getDoc, doc, query, where } from 'firebase/firestore';
+import { collection, addDoc, getDocs, getDoc, doc, query, where, updateDoc } from 'firebase/firestore';
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, onAuthStateChanged, signOut } from "firebase/auth";
 
 
@@ -11,6 +11,27 @@ function App() {
   const [user, setUser] = React.useState([]);
   const [loading, setLoading] = React.useState(true);
 
+  // Update existing post. //
+
+  async function updatePost(){
+
+    const hardCodedId = 'GRtbtWxuov7bpnhfVqNT';
+    const postRef = doc(db, "posts", hardCodedId)
+    const post = await getPostByID(hardCodedId)
+    console.log(post)
+
+    // How change specific A specific field. //
+    
+    const newPost = {
+
+      ...post,
+      title: "Land A $600k Job!",
+    } 
+    console.log(newPost)
+    updateDoc(postRef, newPost);
+  }
+
+  // Created A new post. //
 
   function createPost(){
 
@@ -23,6 +44,8 @@ function App() {
     addDoc(collection(db, "posts"), post)
   }
 
+  // Fetch and log all posts. //
+
   async function getAllPosts(){
 
     const { docs } = await getDocs(collection(db, "posts"));
@@ -31,15 +54,20 @@ function App() {
     console.log(posts);
   }
 
-  async function getPostByID(){
+    // Fetch post by ID //
 
-    const hardCodedId = 'GRtbtWxuov7bpnhfVqNT';
-    const postRef = doc(db, "posts", hardCodedId)
+  async function getPostByID(id){
+
+    // const hardCodedId = 'GRtbtWxuov7bpnhfVqNT';
+
+    const postRef = doc(db, "posts", id)
     const postSnap = await getDoc(postRef);
-    const post = postSnap.data();
+    return postSnap.data();
 
-    console.log(post);
+    // console.log(post);
   }
+
+  // Fetch post by UID //
 
   async function getPostByUID(){
     
@@ -52,14 +80,14 @@ function App() {
     console.log(docs.map(docs => docs.data()));
   }
 
-  // Stay logged in even after browser refreshes //
+
+  // Stay logged in even after browser refreshes. //
 
   React.useEffect(() => {
 
     onAuthStateChanged(auth, (user) => {
 
       setLoading(false);
-      console.log(user);
 
       if (user){
 
@@ -68,11 +96,12 @@ function App() {
     })
   }, []);
 
+  // Register A new user. //
 
   function register(){
 
 
-    // Registered //
+    // Registered. //
 
     console.log('registered')
 
@@ -92,7 +121,7 @@ function App() {
   function login(){
 
 
-    // Logged In //
+    // Logged In. //
 
     signInWithEmailAndPassword(auth, 'email@email.com', 'test123')
 
@@ -111,7 +140,7 @@ function App() {
 
   function logout(){
 
-    // Signed Out //
+    // Signed Out. //
 
     signOut(auth);
     setUser({});
@@ -121,12 +150,13 @@ function App() {
 
     <div className="App">
       
-      <button onClick={ register }>Register</button>
-      <button onClick={ login }>Login</button>
-      <button onClick={ logout }>logout</button>
-      <button onClick={ createPost }>Create Post</button>
-      <button onClick={ getAllPosts }>Get All Posts</button>
-      <button onClick={ getPostByID }>Get Post By ID</button>
+      <button onClick={ register     }>Register</button>
+      <button onClick={ login        }>Login</button>
+      <button onClick={ logout       }>logout</button>
+      <button onClick={ createPost   }>Create Post</button>
+      <button onClick={ updatePost   }>Update Post</button>
+      <button onClick={ getAllPosts  }>Get All Posts</button>
+      <button onClick={ getPostByID  }>Get Post By ID</button>
       <button onClick={ getPostByUID }>Get Post By UID</button>
 
       { loading ? 'Loading...' : user.email }
